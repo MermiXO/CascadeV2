@@ -304,11 +304,18 @@ function Tab:CreateSection(name)
     frame.Name = 'Section'
     frame.BackgroundColor3 = CascadeV2.Theme.PanelAlt
     frame.BorderSizePixel = 0
-    frame.Size = UDim2.new(1, 0, 0, 40)
+    frame.Size = UDim2.new(1, 0, 0, 0)
     frame.AutomaticSize = Enum.AutomaticSize.Y
     frame.Parent = self.Page
     applyCorner(frame, 6)
     applyStroke(frame)
+
+    local padding = Instance.new('UIPadding')
+    padding.PaddingTop = UDim.new(0, 8)
+    padding.PaddingBottom = UDim.new(0, 8)
+    padding.PaddingLeft = UDim.new(0, 8)
+    padding.PaddingRight = UDim.new(0, 8)
+    padding.Parent = frame
 
     local layout = Instance.new('UIListLayout')
     layout.FillDirection = Enum.FillDirection.Vertical
@@ -318,8 +325,7 @@ function Tab:CreateSection(name)
 
     local title = Instance.new('TextLabel')
     title.BackgroundTransparency = 1
-    title.Size = UDim2.new(1, -12, 0, 20)
-    title.Position = UDim2.new(0, 6, 0, 6)
+    title.Size = UDim2.new(1, 0, 0, 18)
     title.Font = Enum.Font.GothamSemibold
     title.TextSize = 13
     title.TextXAlignment = Enum.TextXAlignment.Left
@@ -331,14 +337,23 @@ function Tab:CreateSection(name)
     return section
 end
 
-local function newControlFrame(section, height)
+local function newControlFrame(section)
     local frame = Instance.new('Frame')
     frame.BackgroundColor3 = CascadeV2.Theme.Panel
     frame.BorderSizePixel = 0
-    frame.Size = UDim2.new(1, -12, 0, height)
+    frame.Size = UDim2.new(1, 0, 0, 0)
+    frame.AutomaticSize = Enum.AutomaticSize.Y
     frame.Parent = section.Frame
     applyCorner(frame, 6)
     applyStroke(frame)
+
+    local padding = Instance.new('UIPadding')
+    padding.PaddingTop = UDim.new(0, 6)
+    padding.PaddingBottom = UDim.new(0, 6)
+    padding.PaddingLeft = UDim.new(0, 8)
+    padding.PaddingRight = UDim.new(0, 8)
+    padding.Parent = frame
+
     return frame
 end
 
@@ -346,30 +361,35 @@ function Section:CreateToggle(options)
     options = options or {}
     local state = options.Default or false
 
-    local frame = newControlFrame(self, 32)
+    local frame = newControlFrame(self)
+
+    local container = Instance.new('Frame')
+    container.BackgroundTransparency = 1
+    container.Size = UDim2.new(1, 0, 0, 24)
+    container.Parent = frame
 
     local label = Instance.new('TextLabel')
     label.BackgroundTransparency = 1
-    label.Size = UDim2.new(1, -60, 1, 0)
-    label.Position = UDim2.new(0, 10, 0, 0)
+    label.Size = UDim2.new(1, -50, 1, 0)
     label.Font = Enum.Font.Gotham
     label.TextSize = 13
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.TextColor3 = CascadeV2.Theme.Text
     label.Text = options.Name or 'Toggle'
-    label.Parent = frame
+    label.Parent = container
 
     local switch = Instance.new('Frame')
     switch.Size = UDim2.new(0, 42, 0, 20)
-    switch.Position = UDim2.new(1, -52, 0.5, -10)
+    switch.AnchorPoint = Vector2.new(1, 0.5)
+    switch.Position = UDim2.new(1, 0, 0.5, 0)
     switch.BackgroundColor3 = state and CascadeV2.Theme.ToggleOn or CascadeV2.Theme.ToggleOff
     switch.BorderSizePixel = 0
-    switch.Parent = frame
+    switch.Parent = container
     applyCorner(switch, 10)
 
     local knob = Instance.new('Frame')
     knob.Size = UDim2.new(0, 18, 0, 18)
-    knob.Position = state and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+    knob.Position = state and UDim2.new(1, -2, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
     knob.BackgroundColor3 = Color3.new(1, 1, 1)
     knob.BorderSizePixel = 0
     knob.Parent = switch
@@ -379,7 +399,7 @@ function Section:CreateToggle(options)
     button.BackgroundTransparency = 1
     button.Size = UDim2.new(1, 0, 1, 0)
     button.Text = ''
-    button.Parent = frame
+    button.Parent = container
 
     local function setState(v)
         state = v
@@ -410,16 +430,18 @@ end
 function Section:CreateButton(options)
     options = options or {}
 
-    local frame = newControlFrame(self, 32)
+    local frame = newControlFrame(self)
 
     local btn = Instance.new('TextButton')
-    btn.BackgroundTransparency = 1
-    btn.Size = UDim2.new(1, 0, 1, 0)
+    btn.BackgroundColor3 = CascadeV2.Theme.Accent
+    btn.BorderSizePixel = 0
+    btn.Size = UDim2.new(1, 0, 0, 28)
     btn.Font = Enum.Font.GothamSemibold
     btn.TextSize = 13
-    btn.TextColor3 = CascadeV2.Theme.Text
+    btn.TextColor3 = Color3.new(1, 1, 1)
     btn.Text = options.Name or 'Button'
     btn.Parent = frame
+    applyCorner(btn, 6)
 
     btn.MouseButton1Click:Connect(function()
         if options.Callback then
@@ -436,35 +458,39 @@ function Section:CreateSlider(options)
     local max = options.Max or 100
     local value = options.Default or min
 
-    local frame = newControlFrame(self, 40)
+    local frame = newControlFrame(self)
+
+    local labelContainer = Instance.new('Frame')
+    labelContainer.BackgroundTransparency = 1
+    labelContainer.Size = UDim2.new(1, 0, 0, 20)
+    labelContainer.Parent = frame
 
     local label = Instance.new('TextLabel')
     label.BackgroundTransparency = 1
-    label.Size = UDim2.new(1, -40, 0, 18)
-    label.Position = UDim2.new(0, 10, 0, 2)
+    label.Size = UDim2.new(1, -40, 1, 0)
     label.Font = Enum.Font.Gotham
     label.TextSize = 13
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.TextColor3 = CascadeV2.Theme.Text
     label.Text = options.Name or 'Slider'
-    label.Parent = frame
+    label.Parent = labelContainer
 
     local valueLabel = Instance.new('TextLabel')
     valueLabel.BackgroundTransparency = 1
-    valueLabel.Size = UDim2.new(0, 40, 0, 18)
-    valueLabel.Position = UDim2.new(1, -40, 0, 2)
+    valueLabel.Size = UDim2.new(0, 40, 1, 0)
+    valueLabel.AnchorPoint = Vector2.new(1, 0)
+    valueLabel.Position = UDim2.new(1, 0, 0, 0)
     valueLabel.Font = Enum.Font.Gotham
     valueLabel.TextSize = 13
     valueLabel.TextXAlignment = Enum.TextXAlignment.Right
     valueLabel.TextColor3 = CascadeV2.Theme.SubText
     valueLabel.Text = tostring(value)
-    valueLabel.Parent = frame
+    valueLabel.Parent = labelContainer
 
     local bar = Instance.new('Frame')
     bar.BackgroundColor3 = CascadeV2.Theme.SliderTrack
     bar.BorderSizePixel = 0
-    bar.Size = UDim2.new(1, -20, 0, 6)
-    bar.Position = UDim2.new(0, 10, 1, -14)
+    bar.Size = UDim2.new(1, 0, 0, 6)
     bar.Parent = frame
     applyCorner(bar, 3)
 
@@ -534,49 +560,64 @@ function Section:CreateDropdown(options)
     local items = options.Options or {}
     local current = options.Default or items[1]
 
-    local frame = newControlFrame(self, 32)
+    local frame = newControlFrame(self)
+
+    local header = Instance.new('Frame')
+    header.BackgroundColor3 = CascadeV2.Theme.Panel
+    header.BorderSizePixel = 0
+    header.Size = UDim2.new(1, 0, 0, 28)
+    header.Parent = frame
+    applyCorner(header, 6)
+    applyStroke(header)
 
     local label = Instance.new('TextLabel')
     label.BackgroundTransparency = 1
-    label.Size = UDim2.new(0.4, -10, 1, 0)
-    label.Position = UDim2.new(0, 10, 0, 0)
+    label.Size = UDim2.new(0.4, -8, 1, 0)
+    label.Position = UDim2.new(0, 8, 0, 0)
     label.Font = Enum.Font.Gotham
     label.TextSize = 13
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.TextColor3 = CascadeV2.Theme.Text
     label.Text = options.Name or 'Dropdown'
-    label.Parent = frame
+    label.Parent = header
 
     local selected = Instance.new('TextButton')
     selected.BackgroundTransparency = 1
-    selected.Size = UDim2.new(0.6, -24, 1, 0)
+    selected.Size = UDim2.new(0.6, -16, 1, 0)
     selected.Position = UDim2.new(0.4, 4, 0, 0)
     selected.Font = Enum.Font.Gotham
     selected.TextSize = 13
     selected.TextXAlignment = Enum.TextXAlignment.Left
     selected.TextColor3 = CascadeV2.Theme.Text
     selected.Text = tostring(current or '')
-    selected.Parent = frame
+    selected.Parent = header
 
     local arrow = Instance.new('TextLabel')
     arrow.BackgroundTransparency = 1
     arrow.Size = UDim2.new(0, 16, 1, 0)
-    arrow.Position = UDim2.new(1, -18, 0, 0)
+    arrow.AnchorPoint = Vector2.new(1, 0)
+    arrow.Position = UDim2.new(1, -8, 0, 0)
     arrow.Font = Enum.Font.GothamBold
     arrow.TextSize = 14
     arrow.TextColor3 = CascadeV2.Theme.SubText
     arrow.Text = '▼'
-    arrow.Parent = frame
+    arrow.Parent = header
 
     local listHolder = Instance.new('Frame')
     listHolder.BackgroundColor3 = CascadeV2.Theme.PanelAlt
     listHolder.BorderSizePixel = 0
-    listHolder.Size = UDim2.new(1, -12, 0, 0)
-    listHolder.Position = UDim2.new(0, 6, 1, 2)
+    listHolder.Size = UDim2.new(1, 0, 0, 0)
     listHolder.Visible = false
     listHolder.Parent = frame
     applyCorner(listHolder, 6)
     applyStroke(listHolder)
+
+    local listPadding = Instance.new('UIPadding')
+    listPadding.PaddingTop = UDim.new(0, 4)
+    listPadding.PaddingBottom = UDim.new(0, 4)
+    listPadding.PaddingLeft = UDim.new(0, 4)
+    listPadding.PaddingRight = UDim.new(0, 4)
+    listPadding.Parent = listHolder
 
     local listLayout = Instance.new('UIListLayout')
     listLayout.FillDirection = Enum.FillDirection.Vertical
@@ -584,8 +625,9 @@ function Section:CreateDropdown(options)
     listLayout.SortOrder = Enum.SortOrder.LayoutOrder
     listLayout.Parent = listHolder
 
+    listHolder.AutomaticSize = Enum.AutomaticSize.Y
+
     local function refreshOptions()
-        listHolder.Size = UDim2.new(1, -12, 0, #items * 22 + 6)
         for _, child in ipairs(listHolder:GetChildren()) do
             if child:IsA('TextButton') then
                 child:Destroy()
@@ -593,14 +635,16 @@ function Section:CreateDropdown(options)
         end
         for _, item in ipairs(items) do
             local optBtn = Instance.new('TextButton')
-            optBtn.BackgroundTransparency = 1
-            optBtn.Size = UDim2.new(1, -8, 0, 20)
+            optBtn.BackgroundColor3 = CascadeV2.Theme.Panel
+            optBtn.BorderSizePixel = 0
+            optBtn.Size = UDim2.new(1, 0, 0, 24)
             optBtn.Font = Enum.Font.Gotham
             optBtn.TextSize = 12
             optBtn.TextColor3 = CascadeV2.Theme.Text
             optBtn.TextXAlignment = Enum.TextXAlignment.Left
             optBtn.Text = tostring(item)
             optBtn.Parent = listHolder
+            applyCorner(optBtn, 4)
             optBtn.MouseButton1Click:Connect(function()
                 current = item
                 selected.Text = tostring(item)
