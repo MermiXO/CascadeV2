@@ -15,7 +15,7 @@ CascadeV2.Theme = {
     AccentDark = Color3.fromRGB(0, 100, 200),
     Text = Color3.fromRGB(235, 235, 245),
     SubText = Color3.fromRGB(170, 175, 190),
-    Outline = Color3.fromRGB(45, 47, 55),
+    Outline = Color3.fromRGB(70, 75, 95),
     ToggleOn = Color3.fromRGB(0, 175, 110),
     ToggleOff = Color3.fromRGB(55, 56, 65),
     SliderTrack = Color3.fromRGB(40, 42, 50),
@@ -263,10 +263,10 @@ function Window:CreateTab(name)
 
     local page = Instance.new('ScrollingFrame')
     page.Name = 'Page'
-    page.BackgroundColor3 = CascadeV2.Theme.Panel
+    page.BackgroundColor3 = CascadeV2.Theme.Background
     page.BorderSizePixel = 0
-    page.Position = UDim2.new(0, 12, 0, 12)
-    page.Size = UDim2.new(1, -24, 1, -24)
+    page.Position = UDim2.new(0, 8, 0, 8)
+    page.Size = UDim2.new(1, -16, 1, -16)
     page.CanvasSize = UDim2.new(0, 0, 0, 0)
     page.AutomaticCanvasSize = Enum.AutomaticSize.Y
     page.ScrollBarThickness = 4
@@ -343,6 +343,7 @@ local function newControlFrame(section)
     frame.AutomaticSize = Enum.AutomaticSize.Y
     frame.Parent = section.Frame
     applyCorner(frame, 6)
+    local stroke = applyStroke(frame)
 
     local padding = Instance.new('UIPadding')
     padding.PaddingTop = UDim.new(0, 6)
@@ -357,7 +358,7 @@ local function newControlFrame(section)
     layout.Padding = UDim.new(0, 4)
     layout.Parent = frame
 
-    return frame
+    return frame, stroke
 end
 
 function Section:CreateToggle(options)
@@ -433,16 +434,21 @@ end
 function Section:CreateButton(options)
     options = options or {}
 
-    local frame = newControlFrame(self)
+    local frame, stroke = newControlFrame(self)
 
     local btn = Instance.new('TextButton')
     btn.BackgroundTransparency = 1
     btn.Size = UDim2.new(1, 0, 0, 24)
     btn.Font = Enum.Font.GothamSemibold
     btn.TextSize = 13
-    btn.TextColor3 = CascadeV2.Theme.Text
+    btn.TextColor3 = CascadeV2.Theme.Accent
     btn.Text = options.Name or 'Button'
+    btn.TextXAlignment = Enum.TextXAlignment.Center
     btn.Parent = frame
+
+    if stroke then
+        stroke.Color = CascadeV2.Theme.Accent
+    end
 
     local defaultColor = CascadeV2.Theme.Panel
     local hoverColor = CascadeV2.Theme.PanelAlt
