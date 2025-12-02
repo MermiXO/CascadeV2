@@ -369,12 +369,13 @@ function Section:CreateToggle(options)
 
     local container = Instance.new('Frame')
     container.BackgroundTransparency = 1
-    container.Size = UDim2.new(1, 0, 0, 24)
+    container.Size = UDim2.new(1, 0, 0, 26)
     container.Parent = frame
 
     local label = Instance.new('TextLabel')
     label.BackgroundTransparency = 1
-    label.Size = UDim2.new(1, -50, 1, 0)
+    label.Size = UDim2.new(1, -70, 1, 0)
+    label.Position = UDim2.new(0, 4, 0, 0)
     label.Font = Enum.Font.Gotham
     label.TextSize = 13
     label.TextXAlignment = Enum.TextXAlignment.Left
@@ -385,7 +386,7 @@ function Section:CreateToggle(options)
     local switch = Instance.new('Frame')
     switch.Size = UDim2.new(0, 42, 0, 20)
     switch.AnchorPoint = Vector2.new(1, 0.5)
-    switch.Position = UDim2.new(1, 0, 0.5, 0)
+    switch.Position = UDim2.new(1, -2, 0.5, 0)
     switch.BackgroundColor3 = state and CascadeV2.Theme.ToggleOn or CascadeV2.Theme.ToggleOff
     switch.BorderSizePixel = 0
     switch.Parent = container
@@ -407,16 +408,24 @@ function Section:CreateToggle(options)
 
     local function setState(v)
         state = v
-        TweenService:Create(
-            switch,
-            TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-            {BackgroundColor3 = v and CascadeV2.Theme.ToggleOn or CascadeV2.Theme.ToggleOff}
-        ):Play()
-        TweenService:Create(
-            knob,
-            TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-            {Position = v and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)}
-        ):Play()
+
+        -- update instantly so it never visually desyncs
+        switch.BackgroundColor3 = v and CascadeV2.Theme.ToggleOn or CascadeV2.Theme.ToggleOff
+        knob.Position = v and UDim2.new(1, -2, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+
+        -- smooth tween on top
+        pcall(function()
+            TweenService:Create(
+                switch,
+                TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+                {BackgroundColor3 = v and CascadeV2.Theme.ToggleOn or CascadeV2.Theme.ToggleOff}
+            ):Play()
+            TweenService:Create(
+                knob,
+                TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+                {Position = v and UDim2.new(1, -2, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)}
+            ):Play()
+        end)
         if options.Callback then
             task.spawn(options.Callback, state)
         end
@@ -425,6 +434,9 @@ function Section:CreateToggle(options)
     button.MouseButton1Click:Connect(function()
         setState(not state)
     end)
+
+    -- initialize visuals
+    setState(state)
 
     return {
         Set = setState
