@@ -302,19 +302,17 @@ function Tab:CreateSection(name)
 
     local frame = Instance.new('Frame')
     frame.Name = 'Section'
-    frame.BackgroundColor3 = CascadeV2.Theme.PanelAlt
+    frame.BackgroundTransparency = 1
     frame.BorderSizePixel = 0
     frame.Size = UDim2.new(1, 0, 0, 0)
     frame.AutomaticSize = Enum.AutomaticSize.Y
     frame.Parent = self.Page
-    applyCorner(frame, 6)
-    applyStroke(frame)
 
     local padding = Instance.new('UIPadding')
-    padding.PaddingTop = UDim.new(0, 8)
-    padding.PaddingBottom = UDim.new(0, 8)
-    padding.PaddingLeft = UDim.new(0, 8)
-    padding.PaddingRight = UDim.new(0, 8)
+    padding.PaddingTop = UDim.new(0, 4)
+    padding.PaddingBottom = UDim.new(0, 4)
+    padding.PaddingLeft = UDim.new(0, 4)
+    padding.PaddingRight = UDim.new(0, 4)
     padding.Parent = frame
 
     local layout = Instance.new('UIListLayout')
@@ -345,7 +343,6 @@ local function newControlFrame(section)
     frame.AutomaticSize = Enum.AutomaticSize.Y
     frame.Parent = section.Frame
     applyCorner(frame, 6)
-    applyStroke(frame)
 
     local padding = Instance.new('UIPadding')
     padding.PaddingTop = UDim.new(0, 6)
@@ -353,6 +350,12 @@ local function newControlFrame(section)
     padding.PaddingLeft = UDim.new(0, 8)
     padding.PaddingRight = UDim.new(0, 8)
     padding.Parent = frame
+
+    local layout = Instance.new('UIListLayout')
+    layout.FillDirection = Enum.FillDirection.Vertical
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Padding = UDim.new(0, 4)
+    layout.Parent = frame
 
     return frame
 end
@@ -433,15 +436,35 @@ function Section:CreateButton(options)
     local frame = newControlFrame(self)
 
     local btn = Instance.new('TextButton')
-    btn.BackgroundColor3 = CascadeV2.Theme.Accent
-    btn.BorderSizePixel = 0
-    btn.Size = UDim2.new(1, 0, 0, 28)
+    btn.BackgroundTransparency = 1
+    btn.Size = UDim2.new(1, 0, 0, 24)
     btn.Font = Enum.Font.GothamSemibold
     btn.TextSize = 13
-    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.TextColor3 = CascadeV2.Theme.Text
     btn.Text = options.Name or 'Button'
     btn.Parent = frame
-    applyCorner(btn, 6)
+
+    local defaultColor = CascadeV2.Theme.Panel
+    local hoverColor = CascadeV2.Theme.PanelAlt
+
+    frame.BackgroundColor3 = defaultColor
+
+    local function setHover(isHover)
+        local target = isHover and hoverColor or defaultColor
+        TweenService:Create(
+            frame,
+            TweenInfo.new(0.15, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+            {BackgroundColor3 = target}
+        ):Play()
+    end
+
+    btn.MouseEnter:Connect(function()
+        setHover(true)
+    end)
+
+    btn.MouseLeave:Connect(function()
+        setHover(false)
+    end)
 
     btn.MouseButton1Click:Connect(function()
         if options.Callback then
@@ -563,12 +586,10 @@ function Section:CreateDropdown(options)
     local frame = newControlFrame(self)
 
     local header = Instance.new('Frame')
-    header.BackgroundColor3 = CascadeV2.Theme.Panel
+    header.BackgroundTransparency = 1
     header.BorderSizePixel = 0
     header.Size = UDim2.new(1, 0, 0, 28)
     header.Parent = frame
-    applyCorner(header, 6)
-    applyStroke(header)
 
     local label = Instance.new('TextLabel')
     label.BackgroundTransparency = 1
